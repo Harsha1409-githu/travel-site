@@ -1,17 +1,15 @@
-import Navbar from "./components/Navbar"
-import Hero from "./components/Hero"
-import Services from "./components/Services"
-import Fleet from "./components/Fleet"
-import Footer from "./components/Footer"
+import { Routes, Route } from "react-router-dom"
+
+import Home from "./pages/Home"
+import Admin from "./pages/Admin"
 
 function App() {
   return (
-    <div>
-      <Navbar />
-      <Hero />
-      <Services />
-      <Fleet />
-      <Footer />
+    <div className="min-h-screen dark:bg-black dark:text-white">
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/admin" element={<Admin />} />
+      </Routes>
     </div>
   )
 }
