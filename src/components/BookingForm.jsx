@@ -1,10 +1,10 @@
-import { useState } from "react"
-import { collection, addDoc } from "firebase/firestore"
-import { db } from "../firebase"
-import toast from "react-hot-toast"
+import { useState } from "react";
+import { collection, addDoc } from "firebase/firestore";
+import { db } from "../firebase";
+import toast from "react-hot-toast";
 
 export default function BookingForm() {
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -13,18 +13,19 @@ export default function BookingForm() {
     destination: "",
     date: "",
     vehicle: "",
-  })
+  });
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
-    })
-  }
+    });
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
+    // validation
     if (
       !formData.name ||
       !formData.phone ||
@@ -33,23 +34,25 @@ export default function BookingForm() {
       !formData.date ||
       !formData.vehicle
     ) {
-      toast.error("Please fill all fields")
-      return
+      toast.error("Please fill all fields");
+      return;
     }
 
     try {
-      setLoading(true)
+      setLoading(true);
 
-    await addDoc(collection(db, "bookings"), {
-  ...formData,
-  status: "Pending",
-  createdAt: new Date(),
-})
+      // Save to Firebase
+      await addDoc(collection(db, "bookings"), {
+        ...formData,
+        status: "Pending",
+        createdAt: new Date().toISOString(),
+      });
 
-      toast.success("Booking Submitted Successfully!")
+      toast.success("Booking Submitted Successfully!");
 
-      const message = encodeURIComponent(`
-🚖 New Travel Booking
+      // WhatsApp message
+      const message = `
+🚖 *New Booking Request*
 
 👤 Name: ${formData.name}
 📞 Phone: ${formData.phone}
@@ -57,13 +60,17 @@ export default function BookingForm() {
 📍 Pickup: ${formData.pickup}
 🎯 Destination: ${formData.destination}
 📅 Travel Date: ${formData.date}
-      `)
 
+💬 Please confirm availability.
+      `;
+
+      // Open WhatsApp
       window.open(
-        `https://wa.me/918977073949?text=${message}`,
+        `https://wa.me/918247486381?text=${encodeURIComponent(message)}`,
         "_blank"
-      )
+      );
 
+      // Reset form
       setFormData({
         name: "",
         phone: "",
@@ -71,14 +78,14 @@ export default function BookingForm() {
         destination: "",
         date: "",
         vehicle: "",
-      })
+      });
     } catch (error) {
-      console.error(error)
-      toast.error("Error submitting booking")
+      console.error(error);
+      toast.error("Error submitting booking");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <section
@@ -96,74 +103,75 @@ export default function BookingForm() {
         <input
           type="text"
           name="name"
-          required
           placeholder="Your Name"
           value={formData.name}
           onChange={handleChange}
           className="border p-3 rounded-xl bg-white dark:bg-gray-800 dark:text-white"
+          required
         />
 
         <input
           type="tel"
           name="phone"
-          required
           placeholder="Phone Number"
           value={formData.phone}
           onChange={handleChange}
           className="border p-3 rounded-xl bg-white dark:bg-gray-800 dark:text-white"
+          required
         />
 
         <select
           name="vehicle"
-          required
           value={formData.vehicle}
           onChange={handleChange}
           className="border p-3 rounded-xl bg-white dark:bg-gray-800 dark:text-white"
+          required
         >
           <option value="">Select Vehicle</option>
           <option value="Toyota Rumion">Toyota Rumion</option>
-          <option value="Sedan">Sedan</option>
-          <option value="SUV">SUV</option>
-          <option value="Tempo Traveller">Tempo Traveller</option>
         </select>
 
         <input
           type="text"
           name="pickup"
-          required
           placeholder="Pickup Location"
           value={formData.pickup}
           onChange={handleChange}
           className="border p-3 rounded-xl bg-white dark:bg-gray-800 dark:text-white"
+          required
         />
 
         <input
           type="text"
           name="destination"
-          required
           placeholder="Destination"
           value={formData.destination}
           onChange={handleChange}
           className="border p-3 rounded-xl bg-white dark:bg-gray-800 dark:text-white"
+          required
         />
 
         <input
           type="date"
           name="date"
-          required
           value={formData.date}
           onChange={handleChange}
           className="border p-3 rounded-xl bg-white dark:bg-gray-800 dark:text-white"
+          required
         />
 
         <button
           type="submit"
           disabled={loading}
-          className="bg-yellow-400 hover:bg-yellow-500 text-black py-3 rounded-xl font-semibold transition duration-300"
+          className={`py-3 rounded-xl font-semibold transition duration-300 ${
+            loading
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-yellow-400 hover:bg-yellow-500"
+          } text-black`}
         >
           {loading ? "Submitting..." : "Book Now"}
         </button>
       </form>
     </section>
-  )
+  );
 }
